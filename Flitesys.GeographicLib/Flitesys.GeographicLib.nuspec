@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>Flitesys.GeographicLib</id>
+        <version>$version$</version>
+        <title>$title$</title>
+        <authors>Flitesys, LLC.</authors>
+        <owners>Flitesys, LLC.</owners>
+        <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/Flitesys/GeographicLib</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A .NET Standard library for Geodesic computations. A port of the C++ library found at https://geographiclib.sourceforge.io/</description>
+        <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+        <copyright>Copyright 2018, Flitesys, LLC.</copyright>
+        <tags>Geodesic Geographic</tags>
+    </metadata>
+</package>
