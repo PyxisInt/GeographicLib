@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Flitesys.GeographicLib
 {
-    public class GeodesicMask
+    public static class GeodesicMask
     {
         internal static readonly int CAP_NONE = 0;
         internal static readonly int CAP_C1 = 1 << 0;

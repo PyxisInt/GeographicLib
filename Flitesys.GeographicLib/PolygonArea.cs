@@ -22,7 +22,7 @@ namespace Flitesys.GeographicLib
             // Compute lon12 the same way as Geodesic.Inverse.
             lon1 = GeoMath.AngNormalize(lon1);
             lon2 = GeoMath.AngNormalize(lon2);
-            double lon12 = GeoMath.AngDiff(lon1, lon2).first;
+            double lon12 = GeoMath.AngDiff(lon1, lon2).First;
             int cross =
               lon1 <= 0 && lon2 > 0 && lon12 > 0 ? 1 :
               (lon2 <= 0 && lon1 > 0 && lon12 < 0 ? -1 : 0);
@@ -98,10 +98,10 @@ namespace Flitesys.GeographicLib
             else
             {
                 GeodesicData g = _earth.Inverse(_lat1, _lon1, lat, lon, _mask);
-                _perimetersum.Add(g.s12);
+                _perimetersum.Add(g.Distance);
                 if (!_polyline)
                 {
-                    _areasum.Add(g.M12);
+                    _areasum.Add(g.GeodesicScale12);
                     _crossings += Transit(_lon1, lon);
                 }
                 _lat1 = lat; _lon1 = lon;
@@ -124,13 +124,13 @@ namespace Flitesys.GeographicLib
             if (_num > 0)
             {             // Do nothing if _num is zero
                 GeodesicData g = _earth.Direct(_lat1, _lon1, azi, s, _mask);
-                _perimetersum.Add(g.s12);
+                _perimetersum.Add(g.Distance);
                 if (!_polyline)
                 {
-                    _areasum.Add(g.M12);
-                    _crossings += TransitDirect(_lon1, g.lon2);
+                    _areasum.Add(g.GeodesicScale12);
+                    _crossings += TransitDirect(_lon1, g.Longitude2);
                 }
-                _lat1 = g.lat2; _lon1 = g.lon2;
+                _lat1 = g.Latitude2; _lon1 = g.Longitude2;
                 ++_num;
             }
         }
@@ -178,7 +178,7 @@ namespace Flitesys.GeographicLib
 
             GeodesicData g = _earth.Inverse(_lat1, _lon1, _lat0, _lon0, _mask);
             Accumulator tempsum = new Accumulator(_areasum);
-            tempsum.Add(g.M12);
+            tempsum.Add(g.GeodesicScale12);
             int crossings = _crossings + Transit(_lon1, _lon0);
             if ((crossings & 1) != 0)
                 tempsum.Add((tempsum.Sum() < 0 ? 1 : -1) * _area0 / 2);
@@ -202,7 +202,7 @@ namespace Flitesys.GeographicLib
                     tempsum.Add(+_area0);
             }
             return
-              new PolygonResult(_num, _perimetersum.Sum(g.s12), 0 + tempsum.Sum());
+              new PolygonResult(_num, _perimetersum.Sum(g.Distance), 0 + tempsum.Sum());
         }
 
         /**
@@ -245,10 +245,10 @@ namespace Flitesys.GeographicLib
                   _earth.Inverse(i == 0 ? _lat1 : lat, i == 0 ? _lon1 : lon,
                                  i != 0 ? _lat0 : lat, i != 0 ? _lon0 : lon,
                                  _mask);
-                perimeter += g.s12;
+                perimeter += g.Distance;
                 if (!_polyline)
                 {
-                    tempsum += g.M12;
+                    tempsum += g.GeodesicScale12;
                     crossings += Transit(i == 0 ? _lon1 : lon,
                                          i != 0 ? _lon0 : lon);
                 }
@@ -320,12 +320,12 @@ namespace Flitesys.GeographicLib
                 double lat, lon, s12, S12, t;
                 GeodesicData g =
                   _earth.Direct(_lat1, _lon1, azi, false, s, _mask);
-                tempsum += g.M12;
-                crossings += TransitDirect(_lon1, g.lon2);
-                g = _earth.Inverse(g.lat2, g.lon2, _lat0, _lon0, _mask);
-                perimeter += g.s12;
-                tempsum += g.M12;
-                crossings += Transit(g.lon2, _lon0);
+                tempsum += g.GeodesicScale12;
+                crossings += TransitDirect(_lon1, g.Longitude2);
+                g = _earth.Inverse(g.Latitude2, g.Longitude2, _lat0, _lon0, _mask);
+                perimeter += g.Distance;
+                tempsum += g.GeodesicScale12;
+                crossings += Transit(g.Longitude2, _lon0);
             }
 
             if ((crossings & 1) != 0)

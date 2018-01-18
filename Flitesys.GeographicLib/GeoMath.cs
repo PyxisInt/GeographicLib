@@ -113,7 +113,7 @@ namespace Flitesys.GeographicLib
             double d, t;
             {
                 Pair r = Sum(AngNormalize(-x), AngNormalize(y));
-                d = AngNormalize(r.first); t = r.second;
+                d = AngNormalize(r.First); t = r.Second;
             }
             return Sum(d == 180 && t > 0 ? -180 : d, t);
         }

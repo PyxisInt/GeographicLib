@@ -13,47 +13,47 @@ namespace Flitesys.GeographicLib
     public class GeodesicData
     {
         //Latitude of point 1 in degrees
-        public double lat1 { get; set; }
+        public double Latitude1 { get; set; }
 
         //Longitude of point 1 in degrees
-        public double lon1 { get; set; }
+        public double Longitude1 { get; set; }
 
         //Azimuth at point 1 in degrees
-        public double azi1 { get; set; }
+        public double InitialAzimuth { get; set; }
 
         //Latitude of point 2 in degrees
-        public double lat2 { get; set; }
+        public double Latitude2 { get; set; }
 
         //Longitude of point 2 in degrees
-        public double lon2 { get; set; }
+        public double Longitude2 { get; set; }
 
         /// <summary>
         /// Azimuth at point 2 in degrees
         /// </summary>
-        public double azi2 { get; set; }
+        public double FinalAzimuth { get; set; }
 
         /// <summary>
         /// Distance in meters between points 1 and 2 (s12)
         /// </summary>
-        public double s12 { get; set; }
+        public double Distance { get; set; }
 
         /// <summary>
         /// Arc Length in degrees on the auxiliary sphere between points 1 and 2 (a12)
         /// </summary>
-        public double a12 { get; set; }
+        public double ArcLength { get; set; }
 
         //Reduced length of geodesic in meters
-        public double m12 { get; set; }
+        public double ReducedLength { get; set; }
 
         //Geodesic scale of point 2 relative to point 1 (dimensionless)
-        public double M12 { get; set; }
+        public double GeodesicScale12 { get; set; }
 
         //Geodesic scale of point 1 relative to point 2 (dimensionless)
-        public double M21 { get; set; }
+        public double GeodesicScale21 { get; set; }
 
         //Area in square meters under the geodesic
-        public double S12 { get; set; }
+        public double AreaUnderGeodesic { get; set; }
 
-        public GeodesicData() => lat1 = lon2 = azi1 = lat2 = lon2 = azi2 = s12 = a12 = m12 = M12 = M21 = S12 = Double.NaN;
+        public GeodesicData() => Latitude1 = Longitude2 = InitialAzimuth = Latitude2 = Longitude2 = FinalAzimuth = Distance = ArcLength = ReducedLength = GeodesicScale12 = GeodesicScale21 = AreaUnderGeodesic = Double.NaN;
     }
 }

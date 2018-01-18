@@ -24,19 +24,19 @@ namespace Flitesys.GeographicLib
         /**
          * latitude of center point of projection (degrees).
          **********************************************************************/
-        public double lat0;
+        public double CenterLatitude;
         /**
          * longitude of center point of projection (degrees).
          **********************************************************************/
-        public double lon0;
+        public double CenterLongitude;
         /**
          * latitude of point (degrees).
          **********************************************************************/
-        public double lat;
+        public double PointLatitude;
         /**
          * longitude of point (degrees).
          **********************************************************************/
-        public double lon;
+        public double PointLongitude;
         /**
          * easting of point (meters).
          **********************************************************************/
@@ -60,7 +60,7 @@ namespace Flitesys.GeographicLib
 
         public GnomonicData()
         {
-            lat0 = lon0 = lat = lon = x = y = azi = rk = Double.NaN;
+            CenterLatitude = CenterLongitude = PointLatitude = PointLongitude = x = y = azi = rk = Double.NaN;
         }
 
         /**
@@ -89,10 +89,10 @@ namespace Flitesys.GeographicLib
         public GnomonicData(double lat0, double lon0, double lat, double lon,
             double x, double y, double azi, double rk)
         {
-            this.lat0 = lat0;
-            this.lon0 = lon0;
-            this.lat = lat;
-            this.lon = lon;
+            this.CenterLatitude = lat0;
+            this.CenterLongitude = lon0;
+            this.PointLatitude = lat;
+            this.PointLongitude = lon;
             this.x = x;
             this.y = y;
             this.azi = azi;

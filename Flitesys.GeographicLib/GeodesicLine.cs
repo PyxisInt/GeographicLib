@@ -188,7 +188,7 @@ namespace Flitesys.GeographicLib
             // Guard against underflow in salp0
             {
                 Pair p = GeoMath.SinCosD(GeoMath.AngRound(azi1));
-                salp1 = p.first; calp1 = p.second;
+                salp1 = p.First; calp1 = p.Second;
             }
             LineInit(g, lat1, lon1, azi1, salp1, calp1, caps);
         }
@@ -198,8 +198,8 @@ namespace Flitesys.GeographicLib
                               double azi1, double salp1, double calp1,
                               int caps)
         {
-            _a = g._a;
-            _f = g._f;
+            _a = g.equatorialRadius;
+            _f = g.ellipsoidFlattening;
             _b = g._b;
             _c2 = g._c2;
             _f1 = g._f1;
@@ -213,12 +213,12 @@ namespace Flitesys.GeographicLib
             double cbet1, sbet1;
             {
                 Pair p = GeoMath.SinCosD(GeoMath.AngRound(_lat1));
-                sbet1 = _f1 * p.first; cbet1 = p.second;
+                sbet1 = _f1 * p.First; cbet1 = p.Second;
             }
             // Ensure cbet1 = +epsilon at poles
             {
                 Pair p = GeoMath.Norm(sbet1, cbet1);
-                sbet1 = p.first; cbet1 = Math.Max(Geodesic.tiny_, p.second);
+                sbet1 = p.First; cbet1 = Math.Max(Geodesic.tiny_, p.Second);
             }
             _dn1 = Math.Sqrt(1 + g._ep2 * GeoMath.Square(sbet1));
 
@@ -240,7 +240,7 @@ namespace Flitesys.GeographicLib
             _csig1 = _comg1 = sbet1 != 0 || _calp1 != 0 ? cbet1 * _calp1 : 1;
             {
                 Pair p = GeoMath.Norm(_ssig1, _csig1);
-                _ssig1 = p.first; _csig1 = p.second;
+                _ssig1 = p.First; _csig1 = p.Second;
             } // sig1 in (-pi, pi]
               // GeoMath.norm(_somg1, _comg1); -- don't need to normalize!
 
@@ -467,8 +467,8 @@ namespace Flitesys.GeographicLib
                    ))
                 // Uninitialized or impossible distance calculation requested
                 return r;
-            r.lat1 = _lat1; r.azi1 = _azi1;
-            r.lon1 = ((outmask & GeodesicMask.LONG_UNROLL) != 0) ? _lon1 :
+            r.Latitude1 = _lat1; r.InitialAzimuth = _azi1;
+            r.Longitude1 = ((outmask & GeodesicMask.LONG_UNROLL) != 0) ? _lon1 :
               GeoMath.AngNormalize(_lon1);
 
             // Avoid warning about uninitialized B12.
@@ -476,17 +476,17 @@ namespace Flitesys.GeographicLib
             if (arcmode)
             {
                 // Interpret s12_a12 as spherical arc length
-                r.a12 = s12_a12;
+                r.ArcLength = s12_a12;
                 sig12 = Math2.ToRadians(s12_a12);
                 {
                     Pair p = GeoMath.SinCosD(s12_a12);
-                    ssig12 = p.first; csig12 = p.second;
+                    ssig12 = p.First; csig12 = p.Second;
                 }
             }
             else
             {
                 // Interpret s12_a12 as distance
-                r.s12 = s12_a12;
+                r.Distance = s12_a12;
                 double
                   tau12 = s12_a12 / (_b * (1 + _A1m1)),
                   s = Math.Sin(tau12),
@@ -531,7 +531,7 @@ namespace Flitesys.GeographicLib
                     ssig12 = Math.Sin(sig12); csig12 = Math.Cos(sig12);
                     // Update B12 below
                 }
-                r.a12 = Math2.ToDegrees(sig12);
+                r.ArcLength = Math2.ToDegrees(sig12);
             }
 
             double ssig2, csig2, sbet2, cbet2, salp2, calp2;
@@ -557,7 +557,7 @@ namespace Flitesys.GeographicLib
             salp2 = _salp0; calp2 = _calp0 * csig2; // No need to normalize
 
             if ((outmask & GeodesicMask.DISTANCE) != 0 && arcmode)
-                r.s12 = _b * ((1 + _A1m1) * sig12 + AB1);
+                r.Distance = _b * ((1 + _A1m1) * sig12 + AB1);
 
             if ((outmask & GeodesicMask.LONGITUDE) != 0)
             {
@@ -575,15 +575,15 @@ namespace Flitesys.GeographicLib
                   (sig12 + (Geodesic.SinCosSeries(true, ssig2, csig2, _C3a)
                              - _B31));
                 double lon12 = Math2.ToDegrees(lam12);
-                r.lon2 = ((outmask & GeodesicMask.LONG_UNROLL) != 0) ? _lon1 + lon12 :
-                  GeoMath.AngNormalize(r.lon1 + GeoMath.AngNormalize(lon12));
+                r.Longitude2 = ((outmask & GeodesicMask.LONG_UNROLL) != 0) ? _lon1 + lon12 :
+                  GeoMath.AngNormalize(r.Longitude1 + GeoMath.AngNormalize(lon12));
             }
 
             if ((outmask & GeodesicMask.LATITUDE) != 0)
-                r.lat2 = GeoMath.Atan2d(sbet2, _f1 * cbet2);
+                r.Latitude2 = GeoMath.Atan2d(sbet2, _f1 * cbet2);
 
             if ((outmask & GeodesicMask.AZIMUTH) != 0)
-                r.azi2 = GeoMath.Atan2d(salp2, calp2);
+                r.FinalAzimuth = GeoMath.Atan2d(salp2, calp2);
 
             if ((outmask &
                  (GeodesicMask.REDUCEDLENGTH | GeodesicMask.GEODESICSCALE)) != 0)
@@ -595,13 +595,13 @@ namespace Flitesys.GeographicLib
                 if ((outmask & GeodesicMask.REDUCEDLENGTH) != 0)
                     // Add parens around (_csig1 * ssig2) and (_ssig1 * csig2) to ensure
                     // accurate cancellation in the case of coincident points.
-                    r.m12 = _b * ((dn2 * (_csig1 * ssig2) - _dn1 * (_ssig1 * csig2))
+                    r.ReducedLength = _b * ((dn2 * (_csig1 * ssig2) - _dn1 * (_ssig1 * csig2))
                                 - _csig1 * csig2 * J12);
                 if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
                 {
                     double t = _k2 * (ssig2 - _ssig1) * (ssig2 + _ssig1) / (_dn1 + dn2);
-                    r.M12 = csig12 + (t * ssig2 - csig2 * J12) * _ssig1 / _dn1;
-                    r.M21 = csig12 - (t * _ssig1 - _csig1 * J12) * ssig2 / dn2;
+                    r.GeodesicScale12 = csig12 + (t * ssig2 - csig2 * J12) * _ssig1 / _dn1;
+                    r.GeodesicScale21 = csig12 - (t * _ssig1 - _csig1 * J12) * ssig2 / dn2;
                 }
             }
 
@@ -631,7 +631,7 @@ namespace Flitesys.GeographicLib
                        ssig12 * (_csig1 * ssig12 / (1 + csig12) + _ssig1));
                     calp12 = GeoMath.Square(_salp0) + GeoMath.Square(_calp0) * _csig1 * csig2;
                 }
-                r.S12 = _c2 * Math.Atan2(salp12, calp12) + _A4 * (B42 - _B41);
+                r.AreaUnderGeodesic = _c2 * Math.Atan2(salp12, calp12) + _A4 * (B42 - _B41);
             }
 
             return r;
@@ -651,7 +651,7 @@ namespace Flitesys.GeographicLib
         {
             _s13 = s13;
             GeodesicData g = Position(false, _s13, 0);
-            _a13 = g.a12;
+            _a13 = g.ArcLength;
         }
 
         /**
@@ -668,7 +668,7 @@ namespace Flitesys.GeographicLib
         {
             _a13 = a13;
             GeodesicData g = Position(true, _a13, GeodesicMask.DISTANCE);
-            _s13 = g.s12;
+            _s13 = g.Distance;
         }
 
         /**

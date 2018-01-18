@@ -179,14 +179,14 @@ namespace Flitesys.GeographicLib
                              GeodesicMask.REDUCEDLENGTH);
             GnomonicData fwd =
               new GnomonicData(lat0, lon0, lat, lon, Double.NaN, Double.NaN,
-                               inv.azi2, inv.M12);
+                               inv.FinalAzimuth, inv.GeodesicScale12);
 
-            if (inv.M12 > 0)
+            if (inv.GeodesicScale12 > 0)
             {
-                double rho = inv.m12 / inv.M12;
-                Pair p = GeoMath.SinCosD(inv.azi1);
-                fwd.x = rho * p.first;
-                fwd.y = rho * p.second;
+                double rho = inv.ReducedLength / inv.GeodesicScale12;
+                Pair p = GeoMath.SinCosD(inv.InitialAzimuth);
+                fwd.x = rho * p.First;
+                fwd.y = rho * p.Second;
             }
 
             return fwd;
@@ -252,8 +252,8 @@ namespace Flitesys.GeographicLib
                     break;
 
                 double ds =
-                  little ? ((pos.m12 / pos.M12) - rho) * pos.M12 * pos.M12
-                  : (rho - (pos.M12 / pos.m12)) * pos.m12 * pos.m12;
+                  little ? ((pos.ReducedLength / pos.GeodesicScale12) - rho) * pos.GeodesicScale12 * pos.GeodesicScale12
+                  : (rho - (pos.GeodesicScale12 / pos.ReducedLength)) * pos.ReducedLength * pos.ReducedLength;
                 s -= ds;
 
                 if (Math.Abs(ds) <= eps_ * _a)
@@ -263,10 +263,10 @@ namespace Flitesys.GeographicLib
             if (trip == 0)
                 return rev;
 
-            rev.lat = pos.lat2;
-            rev.lon = pos.lon2;
-            rev.azi = pos.azi2;
-            rev.rk = pos.M12;
+            rev.PointLatitude = pos.Latitude2;
+            rev.PointLongitude = pos.Longitude2;
+            rev.azi = pos.FinalAzimuth;
+            rev.rk = pos.GeodesicScale12;
 
             return rev;
         }

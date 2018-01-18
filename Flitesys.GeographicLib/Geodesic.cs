@@ -237,7 +237,7 @@ namespace Flitesys.GeographicLib
 
         private static readonly double xthresh_ = 1000 * tol2_;
 
-        internal double _a, _f, _f1, _e2, _ep2, _b, _c2;
+        internal double equatorialRadius, ellipsoidFlattening, _f1, _e2, _ep2, _b, _c2;
         private double _n, _etol2;
         private double[] _A3x, _C3x, _C4x;
 
@@ -253,14 +253,14 @@ namespace Flitesys.GeographicLib
 
         public Geodesic(double a, double f)
         {
-            _a = a;
-            _f = f;
-            _f1 = 1 - _f;
-            _e2 = _f * (2 - _f);
+            equatorialRadius = a;
+            ellipsoidFlattening = f;
+            _f1 = 1 - ellipsoidFlattening;
+            _e2 = ellipsoidFlattening * (2 - ellipsoidFlattening);
             _ep2 = _e2 / GeoMath.Square(_f1); // e2 / (1 - e2)
-            _n = _f / (2 - _f);
-            _b = _a * _f1;
-            _c2 = (GeoMath.Square(_a) + GeoMath.Square(_b) *
+            _n = ellipsoidFlattening / (2 - ellipsoidFlattening);
+            _b = equatorialRadius * _f1;
+            _c2 = (GeoMath.Square(equatorialRadius) + GeoMath.Square(_b) *
                    (_e2 == 0 ? 1 :
                     (_e2 > 0 ? GeoMath.Atanh(Math.Sqrt(_e2)) :
                      Math.Atan(Math.Sqrt(-_e2))) /
@@ -276,9 +276,9 @@ namespace Flitesys.GeographicLib
                                                     // and max(0.001, abs(f)) stops etol2 getting too large in the nearly
                                                     // spherical case.
             _etol2 = 0.1 * tol2_ /
-                      Math.Sqrt(Math.Max(0.001, Math.Abs(_f)) *
-                                 Math.Min(1.0, 1 - _f / 2) / 2);
-            if (!(GeoMath.IsFinite(_a) && _a > 0))
+                      Math.Sqrt(Math.Max(0.001, Math.Abs(ellipsoidFlattening)) *
+                                 Math.Min(1.0, 1 - ellipsoidFlattening / 2) / 2);
+            if (!(GeoMath.IsFinite(equatorialRadius) && equatorialRadius > 0))
                 throw new GeographicException("Equatorial radius is not positive");
             if (!(GeoMath.IsFinite(_b) && _b > 0))
                 throw new GeographicException("Polar semi-axis is not positive");
@@ -607,7 +607,7 @@ namespace Flitesys.GeographicLib
             // Guard against underflow in salp0.  Also -0 is converted to +0.
             {
                 Pair p = GeoMath.SinCosD(GeoMath.AngRound(azi1));
-                salp1 = p.first; calp1 = p.second;
+                salp1 = p.First; calp1 = p.Second;
             }
             // Automatically supply DISTANCE_IN if necessary
             if (!arcmode) caps |= GeodesicMask.DISTANCE_IN;
@@ -666,22 +666,22 @@ namespace Flitesys.GeographicLib
             // Compute longitude difference (AngDiff does this carefully).  Result is
             // in [-180, 180] but -180 is only for west-going geodesics.  180 is for
             // east-going and meridional geodesics.
-            r.lat1 = lat1 = GeoMath.LatFix(lat1); r.lat2 = lat2 = GeoMath.LatFix(lat2);
+            r.Latitude1 = lat1 = GeoMath.LatFix(lat1); r.Latitude2 = lat2 = GeoMath.LatFix(lat2);
             // If really close to the equator, treat as on equator.
             lat1 = GeoMath.AngRound(lat1);
             lat2 = GeoMath.AngRound(lat2);
             double lon12, lon12s;
             {
                 Pair p = GeoMath.AngDiff(lon1, lon2);
-                lon12 = p.first; lon12s = p.second;
+                lon12 = p.First; lon12s = p.Second;
             }
             if ((outmask & GeodesicMask.LONG_UNROLL) != 0)
             {
-                r.lat1 = lon1; r.lon2 = (lon1 + lon12) + lon12s;
+                r.Latitude1 = lon1; r.Longitude2 = (lon1 + lon12) + lon12s;
             }
             else
             {
-                r.lat1 = GeoMath.AngNormalize(lon1); r.lon2 = GeoMath.AngNormalize(lon2);
+                r.Latitude1 = GeoMath.AngNormalize(lon1); r.Longitude2 = GeoMath.AngNormalize(lon2);
             }
             // Make longitude difference positive.
             int lonsign = lon12 >= 0 ? 1 : -1;
@@ -692,7 +692,7 @@ namespace Flitesys.GeographicLib
               lam12 = Math2.ToRadians(lon12), slam12, clam12;
             {
                 Pair p = GeoMath.SinCosD(lon12 > 90 ? lon12s : lon12);
-                slam12 = p.first; clam12 = (lon12 > 90 ? -1 : 1) * p.second;
+                slam12 = p.First; clam12 = (lon12 > 90 ? -1 : 1) * p.Second;
             }
 
             // Swap points so that point with higher (abs) latitude is point 1
@@ -724,19 +724,19 @@ namespace Flitesys.GeographicLib
 
             {
                 Pair p = GeoMath.SinCosD(lat1);
-                sbet1 = _f1 * p.first; cbet1 = p.second;
+                sbet1 = _f1 * p.First; cbet1 = p.Second;
             }
             // Ensure cbet1 = +epsilon at poles; doing the fix on beta means that sig12
             // will be <= 2*tiny for two points at the same pole.
-            { Pair p = GeoMath.Norm(sbet1, cbet1); sbet1 = p.first; cbet1 = p.second; }
+            { Pair p = GeoMath.Norm(sbet1, cbet1); sbet1 = p.First; cbet1 = p.Second; }
             cbet1 = Math.Max(tiny_, cbet1);
 
             {
                 Pair p = GeoMath.SinCosD(lat2);
-                sbet2 = _f1 * p.first; cbet2 = p.second;
+                sbet2 = _f1 * p.First; cbet2 = p.Second;
             }
             // Ensure cbet2 = +epsilon at poles
-            { Pair p = GeoMath.Norm(sbet2, cbet2); sbet2 = p.first; cbet2 = p.second; }
+            { Pair p = GeoMath.Norm(sbet2, cbet2); sbet2 = p.First; cbet2 = p.Second; }
             cbet2 = Math.Max(tiny_, cbet2);
 
             // If cbet1 < -sbet1, then cbet2 - cbet1 is a sensitive measure of the
@@ -796,7 +796,7 @@ namespace Flitesys.GeographicLib
                     s12x = v.s12b; m12x = v.m12b;
                     if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
                     {
-                        r.M12 = v.M12; r.M21 = v.M21;
+                        r.GeodesicScale12 = v.M12; r.GeodesicScale21 = v.M21;
                     }
                 }
                 // Add the check for sig12 since zero length geodesics might yield m12 <
@@ -824,15 +824,15 @@ namespace Flitesys.GeographicLib
             if (!meridian &&
                 sbet1 == 0 &&   // and sbet2 == 0
                                 // Mimic the way Lambda12 works with calp1 = 0
-                (_f <= 0 || lon12s >= _f * 180))
+                (ellipsoidFlattening <= 0 || lon12s >= ellipsoidFlattening * 180))
             {
                 // Geodesic runs along equator
                 calp1 = calp2 = 0; salp1 = salp2 = 1;
-                s12x = _a * lam12;
+                s12x = equatorialRadius * lam12;
                 sig12 = omg12 = lam12 / _f1;
                 m12x = _b * Math.Sin(sig12);
                 if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
-                    r.M12 = r.M21 = Math.Cos(sig12);
+                    r.GeodesicScale12 = r.GeodesicScale21 = Math.Cos(sig12);
                 a12 = lon12 / _f1;
             }
             else if (!meridian)
@@ -859,7 +859,7 @@ namespace Flitesys.GeographicLib
                     s12x = sig12 * _b * dnm;
                     m12x = GeoMath.Square(dnm) * _b * Math.Sin(sig12 / dnm);
                     if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
-                        r.M12 = r.M21 = Math.Cos(sig12 / dnm);
+                        r.GeodesicScale12 = r.GeodesicScale21 = Math.Cos(sig12 / dnm);
                     a12 = Math2.ToDegrees(sig12);
                     omg12 = lam12 / (_f1 * dnm);
                 }
@@ -919,7 +919,7 @@ namespace Flitesys.GeographicLib
                                 salp1 = nsalp1;
                                 {
                                     Pair p = GeoMath.Norm(salp1, calp1);
-                                    salp1 = p.first; calp1 = p.second;
+                                    salp1 = p.First; calp1 = p.Second;
                                 }
                                 // In some regimes we don't get quadratic convergence because
                                 // slope -> 0.  So use convergence conditions based on epsilon
@@ -940,7 +940,7 @@ namespace Flitesys.GeographicLib
                         calp1 = (calp1a + calp1b) / 2;
                         {
                             Pair p = GeoMath.Norm(salp1, calp1);
-                            salp1 = p.first; calp1 = p.second;
+                            salp1 = p.First; calp1 = p.Second;
                         }
                         tripn = false;
                         tripb = (Math.Abs(salp1a - salp1) + (calp1a - calp1) < tolb_ ||
@@ -960,7 +960,7 @@ namespace Flitesys.GeographicLib
                         s12x = v.s12b; m12x = v.m12b;
                         if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
                         {
-                            r.M12 = v.M12; r.M21 = v.M21;
+                            r.GeodesicScale12 = v.M12; r.GeodesicScale21 = v.M21;
                         }
                     }
                     m12x *= _b;
@@ -977,10 +977,10 @@ namespace Flitesys.GeographicLib
             }
 
             if ((outmask & GeodesicMask.DISTANCE) != 0)
-                r.s12 = 0 + s12x;           // Convert -0 to 0
+                r.Distance = 0 + s12x;           // Convert -0 to 0
 
             if ((outmask & GeodesicMask.REDUCEDLENGTH) != 0)
-                r.m12 = 0 + m12x;           // Convert -0 to 0
+                r.ReducedLength = 0 + m12x;           // Convert -0 to 0
 
             if ((outmask & GeodesicMask.AREA) != 0)
             {
@@ -998,25 +998,25 @@ namespace Flitesys.GeographicLib
                       k2 = GeoMath.Square(calp0) * _ep2,
                       eps = k2 / (2 * (1 + Math.Sqrt(1 + k2)) + k2),
                       // Multiplier = a^2 * e^2 * cos(alpha0) * sin(alpha0).
-                      A4 = GeoMath.Square(_a) * calp0 * salp0 * _e2;
+                      A4 = GeoMath.Square(equatorialRadius) * calp0 * salp0 * _e2;
                     {
                         Pair p = GeoMath.Norm(ssig1, csig1);
-                        ssig1 = p.first; csig1 = p.second;
+                        ssig1 = p.First; csig1 = p.Second;
                     }
                     {
                         Pair p = GeoMath.Norm(ssig2, csig2);
-                        ssig2 = p.first; csig2 = p.second;
+                        ssig2 = p.First; csig2 = p.Second;
                     }
                     double[] C4a = new double[nC4_];
                     C4f(eps, C4a);
                     double
                       B41 = SinCosSeries(false, ssig1, csig1, C4a),
                       B42 = SinCosSeries(false, ssig2, csig2, C4a);
-                    r.S12 = A4 * (B42 - B41);
+                    r.AreaUnderGeodesic = A4 * (B42 - B41);
                 }
                 else
                     // Avoid problems with indeterminate sig1, sig2 on equator
-                    r.S12 = 0;
+                    r.AreaUnderGeodesic = 0;
 
                 if (!meridian && somg12 > 1)
                 {
@@ -1052,10 +1052,10 @@ namespace Flitesys.GeographicLib
                     }
                     alp12 = Math.Atan2(salp12, calp12);
                 }
-                r.S12 += _c2 * alp12;
-                r.S12 *= swapp * lonsign * latsign;
+                r.AreaUnderGeodesic += _c2 * alp12;
+                r.AreaUnderGeodesic *= swapp * lonsign * latsign;
                 // Convert -0 to 0
-                r.S12 += 0;
+                r.AreaUnderGeodesic += 0;
             }
 
             // Convert calp, salp to azimuth accounting for lonsign, swapp, latsign.
@@ -1064,14 +1064,14 @@ namespace Flitesys.GeographicLib
                 { double t = salp1; salp1 = salp2; salp2 = t; }
                 { double t = calp1; calp1 = calp2; calp2 = t; }
                 if ((outmask & GeodesicMask.GEODESICSCALE) != 0)
-                { double t = r.M12; r.M12 = r.M21; r.M21 = t; }
+                { double t = r.GeodesicScale12; r.GeodesicScale12 = r.GeodesicScale21; r.GeodesicScale21 = t; }
             }
 
             salp1 *= swapp * lonsign; calp1 *= swapp * latsign;
             salp2 *= swapp * lonsign; calp2 *= swapp * latsign;
 
             // Returned value in [0, 180]
-            r.a12 = a12;
+            r.ArcLength = a12;
             result.salp1 = salp1; result.calp1 = calp1;
             result.salp2 = salp2; result.calp2 = calp2;
             return result;
@@ -1128,8 +1128,8 @@ namespace Flitesys.GeographicLib
             GeodesicData r = result.g;
             if ((outmask & GeodesicMask.AZIMUTH) != 0)
             {
-                r.azi1 = GeoMath.Atan2d(result.salp1, result.calp1);
-                r.azi2 = GeoMath.Atan2d(result.salp2, result.calp2);
+                r.InitialAzimuth = GeoMath.Atan2d(result.salp1, result.calp1);
+                r.FinalAzimuth = GeoMath.Atan2d(result.salp2, result.calp2);
             }
             return r;
         }
@@ -1183,7 +1183,7 @@ namespace Flitesys.GeographicLib
         {
             InverseData result = InverseInt(lat1, lon1, lat2, lon2, 0);
             double salp1 = result.salp1, calp1 = result.calp1,
-              azi1 = GeoMath.Atan2d(salp1, calp1), a12 = result.g.a12;
+              azi1 = GeoMath.Atan2d(salp1, calp1), a12 = result.g.ArcLength;
             // Ensure that a12 can be converted to a distance
             if ((caps & (GeodesicMask.OUT_MASK & GeodesicMask.DISTANCE_IN)) != 0)
                 caps |= GeodesicMask.DISTANCE;
@@ -1273,7 +1273,7 @@ namespace Flitesys.GeographicLib
 
         public double MajorRadius()
         {
-            return _a;
+            return equatorialRadius;
         }
 
         /**
@@ -1283,7 +1283,7 @@ namespace Flitesys.GeographicLib
 
         public double Flattening()
         {
-            return _f;
+            return ellipsoidFlattening;
         }
 
         /**
@@ -1560,7 +1560,7 @@ namespace Flitesys.GeographicLib
                   (comg12 >= 0 ? GeoMath.Square(somg12) / (1 + comg12) : 1 - comg12);
                 {
                     Pair p = GeoMath.Norm(w.salp2, w.calp2);
-                    w.salp2 = p.first; w.calp2 = p.second;
+                    w.salp2 = p.First; w.calp2 = p.Second;
                 }
                 // Set return value
                 w.sig12 = Math.Atan2(ssig12, csig12);
@@ -1581,14 +1581,14 @@ namespace Flitesys.GeographicLib
                 // which otherwise fails with g++ 4.4.4 x86 -O3
                 double x;
                 double lam12x = Math.Atan2(-slam12, -clam12); // lam12 - pi
-                if (_f >= 0)
+                if (ellipsoidFlattening >= 0)
                 {            // In fact f == 0 does not get here
                              // x = dlong, y = dlat
                     {
                         double
                           k2 = GeoMath.Square(sbet1) * _ep2,
                           eps = k2 / (2 * (1 + Math.Sqrt(1 + k2)) + k2);
-                        lamscale = _f * cbet1 * A3f(eps) * Math.PI;
+                        lamscale = ellipsoidFlattening * cbet1 * A3f(eps) * Math.PI;
                     }
                     betscale = lamscale * cbet1;
 
@@ -1612,7 +1612,7 @@ namespace Flitesys.GeographicLib
 
                     x = -1 + m12b / (cbet1 * cbet2 * m0 * Math.PI);
                     betscale = x < -0.01 ? sbet12a / x :
-                      -_f * GeoMath.Square(cbet1) * Math.PI;
+                      -ellipsoidFlattening * GeoMath.Square(cbet1) * Math.PI;
                     lamscale = betscale / cbet1;
                     y = lam12x / lamscale;
                 }
@@ -1620,7 +1620,7 @@ namespace Flitesys.GeographicLib
                 if (y > -tol1_ && x > -1 - xthresh_)
                 {
                     // strip near cut
-                    if (_f >= 0)
+                    if (ellipsoidFlattening >= 0)
                     {
                         w.salp1 = Math.Min(1.0, -x);
                         w.calp1 = -Math.Sqrt(1 - GeoMath.Square(w.salp1));
@@ -1669,7 +1669,7 @@ namespace Flitesys.GeographicLib
                     // Because omg12 is near pi, estimate work with omg12a = pi - omg12
                     double k = Astroid(x, y);
                     double
-                      omg12a = lamscale * (_f >= 0 ? -x * k / (1 + k) : -y * (1 + k) / k);
+                      omg12a = lamscale * (ellipsoidFlattening >= 0 ? -x * k / (1 + k) : -y * (1 + k) / k);
                     somg12 = Math.Sin(omg12a); comg12 = -Math.Cos(omg12a);
                     // Update spherical estimate of alp1 using omg12 instead of lam12
                     w.salp1 = cbet2 * somg12;
@@ -1680,7 +1680,7 @@ namespace Flitesys.GeographicLib
             if (!(w.salp1 <= 0))
             {
                 Pair p = GeoMath.Norm(w.salp1, w.calp1);
-                w.salp1 = p.first; w.calp1 = p.second;
+                w.salp1 = p.First; w.calp1 = p.Second;
             }
             else
             {
@@ -1731,7 +1731,7 @@ namespace Flitesys.GeographicLib
             w.csig1 = comg1 = calp1 * cbet1;
             {
                 Pair p = GeoMath.Norm(w.ssig1, w.csig1);
-                w.ssig1 = p.first; w.csig1 = p.second;
+                w.ssig1 = p.First; w.csig1 = p.Second;
             }
             // GeoMath.norm(somg1, comg1); -- don't need to normalize!
 
@@ -1756,7 +1756,7 @@ namespace Flitesys.GeographicLib
             w.csig2 = comg2 = w.calp2 * cbet2;
             {
                 Pair p = GeoMath.Norm(w.ssig2, w.csig2);
-                w.ssig2 = p.first; w.csig2 = p.second;
+                w.ssig2 = p.First; w.csig2 = p.Second;
             }
             // GeoMath.norm(somg2, comg2); -- don't need to normalize!
 
@@ -1776,7 +1776,7 @@ namespace Flitesys.GeographicLib
             C3f(w.eps, C3a);
             B312 = (SinCosSeries(true, w.ssig2, w.csig2, C3a) -
                     SinCosSeries(true, w.ssig1, w.csig1, C3a));
-            w.domg12 = -_f * A3f(w.eps) * salp0 * (w.sig12 + B312);
+            w.domg12 = -ellipsoidFlattening * A3f(w.eps) * salp0 * (w.sig12 + B312);
             w.lam12 = eta + w.domg12;
 
             if (diffp)

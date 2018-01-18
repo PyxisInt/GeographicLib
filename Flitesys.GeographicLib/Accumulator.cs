@@ -40,8 +40,8 @@ namespace Flitesys.GeographicLib
         public void Add(double y)
         {
             double u;
-            { Pair r = GeoMath.Sum(y, _t); y = r.first; u = r.second; }
-            { Pair r = GeoMath.Sum(y, _s); _s = r.first; _t = r.second; }
+            { Pair r = GeoMath.Sum(y, _t); y = r.First; u = r.Second; }
+            { Pair r = GeoMath.Sum(y, _s); _s = r.First; _t = r.Second; }
             if (_s == 0)              // This implies t == 0,
                 _s = u;                 // so result is u
             else
