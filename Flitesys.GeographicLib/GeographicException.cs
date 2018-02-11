@@ -11,10 +11,6 @@ namespace Flitesys.GeographicLib
         {
         }
 
-        protected GeographicException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
-            : base(info, context)
-        {
-        }
 
         public GeographicException(string message)
             : base(message)

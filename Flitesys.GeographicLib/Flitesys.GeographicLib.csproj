@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.6</TargetFramework>
     <Authors>Flitesys, LLC.</Authors>
     <Company>Flitesys, LLC.</Company>
     <Description>Flitesys.GeographicLib is a C# port of Charles Karney's GeographicLib (https://sourceforge.net/projects/geographiclib/). This product is released under MIT license per the original product.</Description>
@@ -11,6 +11,7 @@
     <RepositoryType>Git</RepositoryType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright 2018, Flitesys, LLC. and Charles F. F. Karney</Copyright>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
 </Project>
