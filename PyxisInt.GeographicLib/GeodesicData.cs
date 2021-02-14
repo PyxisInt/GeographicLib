@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flitesys.GeographicLib
+namespace PyxisInt.GeographicLib
 {
     /// <summary>
     /// The GeodesicData class is used to return the results for a geodesic between

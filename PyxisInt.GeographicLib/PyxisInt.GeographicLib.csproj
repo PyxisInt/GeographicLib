@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <Authors>PyxisInt, LLC.</Authors>
+    <Company>PyxisInt, LLC.</Company>
+    <Description>PyxisInt.GeographicLib is a C# port of Charles Karney's GeographicLib (https://sourceforge.net/projects/geographiclib/). This product is released under MIT license per the original product.</Description>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/PyxisInt/GeographicLib</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PyxisInt/GeographicLib</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright 2018, PyxisInt, LLC. and Charles F. F. Karney</Copyright>
+    <Version>1.0.2</Version>
+  </PropertyGroup>
+
+</Project>

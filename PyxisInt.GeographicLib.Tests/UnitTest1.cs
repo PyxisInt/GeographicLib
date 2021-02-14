@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Flitesys.GeographicLib.Tests
+namespace PyxisInt.GeographicLib.Tests
 {
     [TestClass]
     public class UnitTest1

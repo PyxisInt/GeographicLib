@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Flitesys.GeographicLib
+namespace PyxisInt.GeographicLib
 {
     public class GeographicException : Exception
     {

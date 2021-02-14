@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Flitesys.GeographicLib
+namespace PyxisInt.GeographicLib
 {
     /// <summary>
     /// A pair of double precision numbers

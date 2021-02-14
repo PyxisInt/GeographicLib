@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Flitesys.GeographicLib", "Flitesys.GeographicLib\Flitesys.GeographicLib.csproj", "{7F06315E-D898-49ED-88A8-E7F55156BDD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PyxisInt.GeographicLib", "PyxisInt.GeographicLib\PyxisInt.GeographicLib.csproj", "{7F06315E-D898-49ED-88A8-E7F55156BDD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flitesys.GeographicLib.Tests", "Flitesys.GeographicLib.Tests\Flitesys.GeographicLib.Tests.csproj", "{94E02852-15FE-4DAD-AC11-A67805E114B3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PyxisInt.GeographicLib.Tests", "PyxisInt.GeographicLib.Tests\PyxisInt.GeographicLib.Tests.csproj", "{94E02852-15FE-4DAD-AC11-A67805E114B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
