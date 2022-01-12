@@ -1,0 +1,36 @@
+name: Build And Publish Utilities
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Update Version Number
+      uses: jacobtomlinson/gha-find-replace@2.0.0
+      with:
+        find: "<Version>2.0.0</Version>"
+        replace: "<Version>2.0.${{ github.run_number }}</Version>"
+        include: "**PyxisInt.GeographicLib.csproj"
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build PyxisInt.GeographicLib
+      run: dotnet build --no-restore
+    - name: Test PyxisInt.GeographicLib
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish PyxisInt.GeographicLib
+      uses: brandedoutcast/publish-nuget@v2.5.5
+      with:
+        PROJECT_FILE_PATH: PyxisInt.GeographicLib/PyxisInt.GeographicLib.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+        
