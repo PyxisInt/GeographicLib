@@ -2076,5 +2076,15 @@ namespace PyxisInt.GeographicLib
                 }
             }
         }
+
+        public double GetEquatorialRadius()
+        {
+            return equatorialRadius;
+        }
+
+        public double GetEllipsoidFlattening()
+        {
+            return ellipsoidFlattening;
+        }
     }
 }
