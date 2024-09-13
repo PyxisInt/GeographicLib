@@ -21,11 +21,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Update version number in nuspec
+      - name: Update version number
         run: |
           VERSION_SUFFIX=$(echo ${{github.run_number}})
-          NEW_VERSION="2.0.$VERSION_SUFFIX"
-          pwsh ./scripts/Update-NuspecVersion.ps1 -nuspecPath './PyxisInt.GeographicLib/PyxisInt.GeographicLib.nuspec' -newVersion $NEW_VERSION
+          dotnet msbuild /t:UpdateVersion /p:VersionSuffix=$VERSION_SUFFIX
 
       - name: Restore dependencies
         run: dotnet restore
