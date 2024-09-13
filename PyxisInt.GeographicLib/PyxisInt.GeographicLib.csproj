@@ -12,11 +12,6 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Copyright 2018, PyxisInt, LLC. and Charles F. F. Karney</Copyright>
     <LangVersion>latestmajor</LangVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
-  <Target Name="UpdateVersion">
-    <PropertyGroup>
-      <Version>2.0.$(VersionSuffix)</Version>
-    </PropertyGroup>
-  </Target>
-
 </Project>
