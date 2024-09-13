@@ -7,6 +7,11 @@
 
     <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
+  <Target Name="UpdateVersion">
+    <PropertyGroup>
+      <Version>2.0.$(VersionSuffix)</Version>
+    </PropertyGroup>
+  </Target>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
