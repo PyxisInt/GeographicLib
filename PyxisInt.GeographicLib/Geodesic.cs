@@ -677,7 +677,7 @@ namespace PyxisInt.GeographicLib
             }
             if ((outmask & GeodesicMask.LONG_UNROLL) != 0)
             {
-                r.Latitude1 = lon1; r.Longitude2 = (lon1 + lon12) + lon12s;
+                r.Longitude1 = lon1; r.Longitude2 = (lon1 + lon12) + lon12s;
             }
             else
             {

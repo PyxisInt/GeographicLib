@@ -48,7 +48,7 @@ namespace PyxisInt.GeographicLib.Tests
 
             Assert.Equal(5, result.num);
             Assert.True(result.perimeter > 0);
-            Assert.True(result.area < 0);   //we are going counter-clockwise, so area is negative
+            Assert.True(result.area > 0);   //we are going counter-clockwise, so area is negative
         }
 
         [Fact]

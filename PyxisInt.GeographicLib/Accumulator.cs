@@ -52,5 +52,11 @@ namespace PyxisInt.GeographicLib
         {
             _s = -_s; _t = -_t;
         }
+
+        public void Remainder(double y)
+        {
+            _s = Math.IEEERemainder(_s, y);
+            Add(0.0);
+        }
     }
 }

@@ -23,10 +23,9 @@ namespace PyxisInt.GeographicLib
             lon1 = GeoMath.AngNormalize(lon1);
             lon2 = GeoMath.AngNormalize(lon2);
             double lon12 = GeoMath.AngDiff(lon1, lon2).First;
-            int cross =
-              lon1 <= 0 && lon2 > 0 && lon12 > 0 ? 1 :
-              (lon2 <= 0 && lon1 > 0 && lon12 < 0 ? -1 : 0);
-            return cross;
+            return lon12 > 0 && ((lon1 < 0 && lon2 >= 0)
+                || (lon1 > 0 && lon2 == 0)) ? 1
+                        : (lon12 < 0 && lon1 >= 0 && lon2 < 0 ? -1 : 0);
         }
 
         // an alternate version of transit to deal with longitudes in the direct
@@ -41,6 +40,70 @@ namespace PyxisInt.GeographicLib
             return (((lon2 >= 0 && lon2 < 360) || lon2 < -360 ? 0 : 1) -
                      ((lon1 >= 0 && lon1 < 360) || lon1 < -360 ? 0 : 1));
         }
+
+        private static double AreaReduceA(Accumulator area, double area0, int crossings, Boolean reverse, Boolean sign)
+        {
+            area.Remainder(area0);
+            if ((crossings & 1) != 0)
+                area.Add((area.Sum() < 0 ? 1 : -1) * area0 / 2);
+
+            if (!reverse)
+                area.Negate();
+
+            if (sign)
+            {
+                if (area.Sum() > area0 / 2)
+                {
+                    area.Add(-area0);
+                }
+                else if (area.Sum() <= -area0 / 2)
+                {
+                    area.Add(+area0);
+                }
+            }
+            else
+            {
+                if (area.Sum() >= area0)
+                {
+                    area.Add(-area0);
+                }
+                else if (area.Sum() < 0)
+                {
+                    area.Add(+area0);
+                }
+            }
+            return 0 + area.Sum();
+        }
+
+        private static double AreaReduceB(double area, double area0, int crossings, Boolean reverse, Boolean sign)
+        {
+            area = Math.IEEERemainder(area, area0);
+            if ((crossings & 1) != 0)
+                area += (area < 0 ? 1 : -1) * area0 / 2;
+            // area is with the clockwise sense.  If !reverse convert to
+            // counter-clockwise convention.
+            if (!reverse)
+                area *= -1;
+            // If sign put area in (-area0/2, area0/2], else put area in [0, area0)
+            if (sign)
+            {
+                if (area > area0 / 2)
+                    area -= area0;
+                else if (area <= -area0 / 2)
+                    area += area0;
+            }
+            else
+            {
+                if (area >= area0)
+                    area -= area0;
+                else if (area < 0)
+                    area += area0;
+            }
+            return 0 + area;
+        }
+
+
+
 
         /**
          * Constructor for PolygonArea.
@@ -89,7 +152,6 @@ namespace PyxisInt.GeographicLib
 
         public void AddPoint(double lat, double lon)
         {
-            lon = GeoMath.AngNormalize(lon);
             if (_num == 0)
             {
                 _lat0 = _lat1 = lat;
@@ -179,30 +241,9 @@ namespace PyxisInt.GeographicLib
             GeodesicData g = _earth.Inverse(_lat1, _lon1, _lat0, _lon0, _mask);
             Accumulator tempsum = new Accumulator(_areasum);
             tempsum.Add(g.AreaUnderGeodesic);
-            int crossings = _crossings + Transit(_lon1, _lon0);
-            if ((crossings & 1) != 0)
-                tempsum.Add((tempsum.Sum() < 0 ? 1 : -1) * _area0 / 2);
-            // area is with the clockwise sense.  If !reverse convert to
-            // counter-clockwise convention.
-            if (!reverse)
-                tempsum.Negate();
-            // If sign put area in (-area0/2, area0/2], else put area in [0, area0)
-            if (sign)
-            {
-                if (tempsum.Sum() > _area0 / 2)
-                    tempsum.Add(-_area0);
-                else if (tempsum.Sum() <= -_area0 / 2)
-                    tempsum.Add(+_area0);
-            }
-            else
-            {
-                if (tempsum.Sum() >= _area0)
-                    tempsum.Add(-_area0);
-                else if (tempsum.Sum() < 0)
-                    tempsum.Add(+_area0);
-            }
-            return
-              new PolygonResult(_num, _perimetersum.Sum(g.Distance), 0 + tempsum.Sum());
+            return new PolygonResult(_num, _perimetersum.Sum(g.Distance),
+                AreaReduceA(tempsum, _area0, _crossings + Transit(_lon1, _lon0), reverse, sign));
+
         }
 
         /**
@@ -257,28 +298,8 @@ namespace PyxisInt.GeographicLib
             if (_polyline)
                 return new PolygonResult(num, perimeter, Double.NaN);
 
-            if ((crossings & 1) != 0)
-                tempsum += (tempsum < 0 ? 1 : -1) * _area0 / 2;
-            // area is with the clockwise sense.  If !reverse convert to
-            // counter-clockwise convention.
-            if (!reverse)
-                tempsum *= -1;
-            // If sign put area in (-area0/2, area0/2], else put area in [0, area0)
-            if (sign)
-            {
-                if (tempsum > _area0 / 2)
-                    tempsum -= _area0;
-                else if (tempsum <= -_area0 / 2)
-                    tempsum += _area0;
-            }
-            else
-            {
-                if (tempsum >= _area0)
-                    tempsum -= _area0;
-                else if (tempsum < 0)
-                    tempsum += _area0;
-            }
-            return new PolygonResult(num, perimeter, 0 + tempsum);
+            return new PolygonResult(num, perimeter,
+                AreaReduceB(tempsum, _area0, crossings, reverse, sign));
         }
 
         /**
@@ -322,35 +343,13 @@ namespace PyxisInt.GeographicLib
                   _earth.Direct(_lat1, _lon1, azi, false, s, _mask);
                 tempsum += g.AreaUnderGeodesic;
                 crossings += TransitDirect(_lon1, g.Longitude2);
+                crossings += Transit(g.Longitude2, _lon0);
                 g = _earth.Inverse(g.Latitude2, g.Longitude2, _lat0, _lon0, _mask);
                 perimeter += g.Distance;
                 tempsum += g.AreaUnderGeodesic;
-                crossings += Transit(g.Longitude2, _lon0);
             }
-
-            if ((crossings & 1) != 0)
-                tempsum += (tempsum < 0 ? 1 : -1) * _area0 / 2;
-            // area is with the clockwise sense.  If !reverse convert to
-            // counter-clockwise convention.
-            if (!reverse)
-                tempsum *= -1;
-            // If sign put area in (-area0/2, area0/2], else put area in [0, area0)
-            if (sign)
-            {
-                if (tempsum > _area0 / 2)
-                    tempsum -= _area0;
-                else if (tempsum <= -_area0 / 2)
-                    tempsum += _area0;
-            }
-            else
-            {
-                if (tempsum >= _area0)
-                    tempsum -= _area0;
-                else if (tempsum < 0)
-                    tempsum += _area0;
-            }
-
-            return new PolygonResult(num, perimeter, 0 + tempsum);
+            return new PolygonResult(num, perimeter,
+                AreaReduceB(tempsum, _area0, crossings, reverse, sign));
         }
 
         /**
@@ -361,6 +360,11 @@ namespace PyxisInt.GeographicLib
         public double MajorRadius()
         {
             return _earth.MajorRadius();
+        }
+
+        public double EquatorialRadius()
+        {
+            return _earth.equatorialRadius;
         }
 
         /**
