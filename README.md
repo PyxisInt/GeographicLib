@@ -1,4 +1,5 @@
-[![Build And Publish Utilities](https://github.com/PyxisInt/GeographicLib/actions/workflows/buildandpublish.yml/badge.svg)](https://github.com/PyxisInt/GeographicLib/actions/workflows/buildandpublish.yml) ![NuGet Version](https://img.shields.io/nuget/v/PyxisInt.GeographicLib) ![NuGet Downloads](https://img.shields.io/nuget/dt/PyxisInt.GeographicLib)
+[![Build And Publish Utilities](https://github.com/PyxisInt/GeographicLib/actions/workflows/buildandpublish.yml/badge.svg)](https://github.com/PyxisInt/GeographicLib/actions/workflows/buildandpublish.yml) ![NuGet Version](https://img.shields.io/nuget/v/PyxisInt.GeographicLib) ![NuGet Downloads](https://img.shields.io/nuget/dt/PyxisInt.GeographicLib) ![Static Badge](https://img.shields.io/badge/license-MIT-blue?label=license)
+
 
 
 
