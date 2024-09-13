@@ -1,36 +1,44 @@
-name: Build And Publish Utilities
+name: Build and Publish
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - main
   pull_request:
-    branches: [ master ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 5.0.x
-    - name: Update Version Number
-      uses: jacobtomlinson/gha-find-replace@2.0.0
-      with:
-        find: "<Version>2.0.0</Version>"
-        replace: "<Version>2.0.${{ github.run_number }}</Version>"
-        include: "**PyxisInt.GeographicLib.csproj"
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build PyxisInt.GeographicLib
-      run: dotnet build --no-restore
-    - name: Test PyxisInt.GeographicLib
-      run: dotnet test --no-build --verbosity normal
-    - name: Publish PyxisInt.GeographicLib
-      uses: brandedoutcast/publish-nuget@v2.5.5
-      with:
-        PROJECT_FILE_PATH: PyxisInt.GeographicLib/PyxisInt.GeographicLib.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
-        
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Update version number
+        run: |
+          VERSION_SUFFIX=$(echo $GITHUB_RUN_ID)
+          dotnet msbuild /t:UpdateVersion /p:VersionSuffix=$VERSION_SUFFIX
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal
+
+      - name: Pack
+        run: dotnet pack --configuration Release --no-restore --output ./artifacts
+
+      - name: Publish to NuGet
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
