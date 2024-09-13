@@ -101,7 +101,7 @@ namespace PyxisInt.GeographicLib
                 _perimetersum.Add(g.Distance);
                 if (!_polyline)
                 {
-                    _areasum.Add(g.GeodesicScale12);
+                    _areasum.Add(g.AreaUnderGeodesic);
                     _crossings += Transit(_lon1, lon);
                 }
                 _lat1 = lat; _lon1 = lon;
@@ -127,7 +127,7 @@ namespace PyxisInt.GeographicLib
                 _perimetersum.Add(g.Distance);
                 if (!_polyline)
                 {
-                    _areasum.Add(g.GeodesicScale12);
+                    _areasum.Add(g.AreaUnderGeodesic);
                     _crossings += TransitDirect(_lon1, g.Longitude2);
                 }
                 _lat1 = g.Latitude2; _lon1 = g.Longitude2;
@@ -178,7 +178,7 @@ namespace PyxisInt.GeographicLib
 
             GeodesicData g = _earth.Inverse(_lat1, _lon1, _lat0, _lon0, _mask);
             Accumulator tempsum = new Accumulator(_areasum);
-            tempsum.Add(g.GeodesicScale12);
+            tempsum.Add(g.AreaUnderGeodesic);
             int crossings = _crossings + Transit(_lon1, _lon0);
             if ((crossings & 1) != 0)
                 tempsum.Add((tempsum.Sum() < 0 ? 1 : -1) * _area0 / 2);
@@ -248,7 +248,7 @@ namespace PyxisInt.GeographicLib
                 perimeter += g.Distance;
                 if (!_polyline)
                 {
-                    tempsum += g.GeodesicScale12;
+                    tempsum += g.AreaUnderGeodesic;
                     crossings += Transit(i == 0 ? _lon1 : lon,
                                          i != 0 ? _lon0 : lon);
                 }
@@ -320,11 +320,11 @@ namespace PyxisInt.GeographicLib
                 double lat, lon, s12, S12, t;
                 GeodesicData g =
                   _earth.Direct(_lat1, _lon1, azi, false, s, _mask);
-                tempsum += g.GeodesicScale12;
+                tempsum += g.AreaUnderGeodesic;
                 crossings += TransitDirect(_lon1, g.Longitude2);
                 g = _earth.Inverse(g.Latitude2, g.Longitude2, _lat0, _lon0, _mask);
                 perimeter += g.Distance;
-                tempsum += g.GeodesicScale12;
+                tempsum += g.AreaUnderGeodesic;
                 crossings += Transit(g.Longitude2, _lon0);
             }
 
