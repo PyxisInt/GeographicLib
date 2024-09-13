@@ -14,5 +14,10 @@
     <Version>2.0.0</Version>
     <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
+  <Target Name="UpdateVersion">
+    <PropertyGroup>
+      <Version>2.0.$(VersionSuffix)</Version>
+    </PropertyGroup>
+  </Target>
 
 </Project>
