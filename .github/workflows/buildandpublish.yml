@@ -23,7 +23,7 @@ jobs:
 
       - name: Update version number in nuspec
         run: |
-          VERSION_SUFFIX=$(echo $GITHUB_RUN_ID)
+          VERSION_SUFFIX=$(echo ${{github.run_id}})
           NEW_VERSION="2.0.$VERSION_SUFFIX"
           pwsh ./scripts/Update-NuspecVersion.ps1 -nuspecPath './PyxisInt.GeographicLib/PyxisInt.GeographicLib.nuspec' -newVersion $NEW_VERSION
 
