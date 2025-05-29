@@ -115,7 +115,7 @@ namespace PyxisInt.GeographicLib
                 Pair r = Sum(AngNormalize(-x), AngNormalize(y));
                 d = AngNormalize(r.First); t = r.Second;
             }
-            return Sum(d == 180 && t > 0 ? -180 : d, t);
+            return Sum(Math.Abs(d - 180) < 1e-10 && t > 0 ? -180 : d, t);
         }
 
         public static Pair SinCosD(double x)
@@ -170,7 +170,7 @@ namespace PyxisInt.GeographicLib
 
         public static bool IsFinite(double x)
         {
-            return Math.Abs(x) <= Double.MaxValue;
+            return !Double.IsInfinity(x) && !Double.IsNaN(x);
         }
     }
 }
